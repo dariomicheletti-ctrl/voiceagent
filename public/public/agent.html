@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceAgent AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--green:#00ff9d;--green-dim:rgba(0,255,157,0.15);--green-glow:rgba(0,255,157,0.3);--red:#ff3b5c;--blue:#4af0ff;--bg:#080810;--panel:#0e0e1a;--border:#1c1c2e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#e0e0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,255,157,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;}
+.scanline{position:fixed;left:0;right:0;height:2px;z-index:0;background:linear-gradient(transparent,rgba(0,255,157,0.06),transparent);animation:scanline 7s linear infinite;pointer-events:none;}
+@keyframes scanline{from{top:-2px;}to{top:100%;}}
+.container{position:relative;z-index:1;width:100%;max-width:440px;}
+.header{text-align:center;margin-bottom:28px;}
+.header-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.35em;color:var(--green);margin-bottom:8px;}
+.header h1{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:#fff;}
+.header h1 span{color:var(--green);}
+.header-sub{font-size:10px;color:#333;margin-top:5px;letter-spacing:0.2em;font-family:'Space Mono',monospace;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 0 60px rgba(0,255,157,0.04),0 24px 48px rgba(0,0,0,0.6);}
+.status-bar{padding:11px 18px;border-bottom:1px solid var(--border);background:#0b0b14;display:flex;align-items:center;justify-content:space-between;}
+.status-left{display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:#333;transition:background 0.4s;}
+.dot.ringing{background:#ffd700;animation:blink 0.5s ease-in-out infinite alternate;}
+.dot.active{background:var(--green);animation:pdot 2s ease-out infinite;}
+.dot.ended{background:var(--red);}
+@keyframes blink{to{opacity:0.3;}}
+@keyframes pdot{0%{box-shadow:0 0 0 0 rgba(0,255,157,0.5);}70%{box-shadow:0 0 0 10px rgba(0,255,157,0);}100%{box-shadow:0 0 0 0 rgba(0,255,157,0);}}
+.status-text{font-family:'Space Mono',monospace;font-size:10px;color:#666;letter-spacing:0.15em;}
+.timer{font-family:'Space Mono',monospace;font-size:12px;color:var(--green);font-variant-numeric:tabular-nums;}
+.phone-tag{font-family:'Space Mono',monospace;font-size:9px;color:#333;}
+.scenario-bar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;background:#0b0b14;}
+.scenario-btn{padding:4px 10px;font-size:10px;border-radius:6px;cursor:pointer;border:1px solid #222;background:#111;color:#555;font-family:'Space Mono',monospace;transition:all 0.2s;}
+.scenario-btn.active{background:var(--green-dim);border-color:rgba(0,255,157,0.4);color:var(--green);}
+.caller-area{padding:28px 24px 18px;text-align:center;}
+.avatar{width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#141a14,#0a100a);border:2px solid #222;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:30px;transition:border-color 0.5s,box-shadow 0.5s;}
+.avatar.active{border-color:var(--green);box-shadow:0 0 30px var(--green-glow);animation:apulse 2s ease-out infinite;}
+.avatar.ringing{animation:rshake 0.4s ease-in-out infinite;}
+@keyframes apulse{0%,100%{box-shadow:0 0 20px var(--green-glow);}50%{box-shadow:0 0 40px rgba(0,255,157,0.5);}}
+@keyframes rshake{0%,100%{transform:rotate(-6deg);}50%{transform:rotate(6deg);}}
+.caller-name{font-size:18px;font-weight:500;color:#fff;margin-bottom:3px;}
+.caller-scenario{font-family:'Space Mono',monospace;font-size:9px;color:#444;letter-spacing:0.2em;}
+.wave-container{display:flex;justify-content:center;align-items:center;height:44px;margin-top:14px;gap:3px;}
+.wave-bar{width:3px;border-radius:2px;background:var(--green);height:4px;opacity:0.25;transition:height 0.15s ease,opacity 0.3s;}
+.wave-bar.active{opacity:1;animation:wanim var(--spd,0.6s) ease-in-out infinite alternate;}
+.wave-bar.listening{background:var(--blue);}
+@keyframes wanim{from{height:4px;}to{height:var(--h,28px);}}
+.transcript-box{margin:6px 20px 0;padding:8px 14px;background:rgba(74,240,255,0.06);border:1px solid rgba(74,240,255,0.2);border-radius:8px;font-size:12px;color:var(--blue);font-style:italic;display:none;}
+.transcript-box.visible{display:block;}
+.messages{max-height:210px;overflow-y:auto;padding:4px 14px 14px;display:flex;flex-direction:column;gap:8px;}
+.messages::-webkit-scrollbar{width:3px;}
+.messages::-webkit-scrollbar-thumb{background:#222;border-radius:2px;}
+.msg{display:flex;animation:msgin 0.3s ease forwards;}
+.msg.user{justify-content:flex-end;}
+@keyframes msgin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.bubble{max-width:84%;padding:9px 13px;font-size:13px;line-height:1.5;border-radius:12px;}
+.msg.user .bubble{background:#0a2218;border:1px solid rgba(0,255,157,0.2);border-radius:12px 12px 2px 12px;color:#90ffc8;}
+.msg.assistant .bubble{background:#111;border:1px solid var(--border);border-radius:12px 12px 12px 2px;color:#ccc;}
+.bubble-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0.12em;margin-bottom:4px;color:#444;}
+.msg.user .bubble-label{color:rgba(0,255,157,0.5);}
+.typing-dots span{display:inline-block;width:6px;height:6px;background:#555;border-radius:50%;margin:0 2px;animation:dbounce 1s ease-in-out infinite;}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes dbounce{0%,80%,100%{transform:translateY(0);opacity:0.4;}40%{transform:translateY(-5px);opacity:1;}}
+.error-box{margin:0 14px 10px;padding:8px 12px;background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.3);border-radius:8px;font-size:11px;color:#ff8899;display:none;}
+.error-box.visible{display:block;}
+.text-input-row{padding:0 14px 10px;display:none;gap:8px;}
+.text-input-row.visible{display:flex;}
+.text-input{flex:1;background:#111;border:1px solid #222;border-radius:8px;color:#ccc;padding:8px 12px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;}
+.send-btn{background:var(--green-dim);border:1px solid rgba(0,255,157,0.3);border-radius:8px;color:var(--green);padding:8px 14px;cursor:pointer;font-size:16px;}
+.controls{padding:14px 20px 22px;border-top:1px solid var(--border);display:flex;justify-content:center;align-items:center;gap:14px;}
+.btn{border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:22px;transition:all 0.2s;user-select:none;flex-shrink:0;}
+.btn:hover{transform:scale(1.08);filter:brightness(1.2);}
+.btn:active{transform:scale(0.95);}
+.btn-call{width:72px;height:72px;background:linear-gradient(135deg,#00c870,#00ff9d);box-shadow:0 0 28px var(--green-glow);font-size:28px;}
+.btn-end{width:64px;height:64px;background:linear-gradient(135deg,#cc1a33,#ff3b5c);}
+.btn-mic{width:54px;height:54px;background:#111;border:2px solid #333;}
+.btn-mic.listening{background:rgba(74,240,255,0.1);border-color:var(--blue);}
+.btn-mute{width:54px;height:54px;background:#111;border:2px solid #333;}
+.btn-mute.muted{background:rgba(255,59,92,0.1);border-color:var(--red);}
+.btn-accept{width:62px;height:62px;background:linear-gradient(135deg,#00c870,#00ff9d);}
+.btn-decline{width:62px;height:62px;background:linear-gradient(135deg,#cc1a33,#ff3b5c);}
+.ended-msg{text-align:center;font-family:'Space Mono',monospace;font-size:11px;color:var(--green);letter-spacing:0.15em;padding:14px 0 4px;}
+.footer{text-align:center;margin-top:18px;font-family:'Space Mono',monospace;font-size:9px;color:#252535;letter-spacing:0.2em;}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="container">
+  <div class="header">
+    <div class="header-tag">&#9672; AGENTE VOCALE AI &#9672;</div>
+    <h1>Voice<span>Agent</span>_AI</h1>
+    <div class="header-sub">POWERED BY GROQ &middot; LLAMA 3</div>
+  </div>
+  <div class="panel">
+    <div class="status-bar">
+      <div class="status-left">
+        <div class="dot idle" id="statusDot"></div>
+        <div class="status-text" id="statusText">PRONTO</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="phone-tag" id="phoneTag"></div>
+        <div class="timer" id="timer" style="display:none">00:00</div>
+      </div>
+    </div>
+    <div class="scenario-bar" id="scenarioBar">
+      <button class="scenario-btn active" data-s="reception" onclick="setScenario(this)">&#127970; Reception</button>
+      <button class="scenario-btn" data-s="support" onclick="setScenario(this)">&#128296; Supporto</button>
+      <button class="scenario-btn" data-s="booking" onclick="setScenario(this)">&#128197; Prenotazioni</button>
+      <button class="scenario-btn" data-s="info" onclick="setScenario(this)">&#8505; Info</button>
+    </div>
+    <div class="caller-area">
+      <div class="avatar" id="avatar">&#128222;</div>
+      <div class="caller-name" id="callerName">Avvia una chiamata</div>
+      <div class="caller-scenario" id="callerScenario">SELEZIONA SCENARIO SOPRA</div>
+      <div class="wave-container" id="waveContainer"></div>
+    </div>
+    <div class="transcript-box" id="transcriptBox"></div>
+    <div class="messages" id="messages"></div>
+    <div class="error-box" id="errorBox"></div>
+    <div class="text-input-row" id="textInputRow">
+      <input class="text-input" id="textInput" placeholder="Scrivi un messaggio..." onkeydown="if(event.key==='Enter')sendText()">
+      <button class="send-btn" onclick="sendText()">&#8593;</button>
+    </div>
+    <div class="controls" id="controls"></div>
+  </div>
+  <div class="footer">&#128274; DATI PROTETTI &middot; &#129302; GROQ AI &middot; GDPR COMPLIANT</div>
+</div>
 
+<script>
+var phone = sessionStorage.getItem('va_phone');
+var registered = sessionStorage.getItem('va_registered');
+if (!registered || !phone) { window.location.href = '/'; }
+document.getElementById('phoneTag').textContent = phone || '';
+
+var SCENARIOS = {
+  reception: {label:'&#127970; RECEPTION', prompt:'Sei la receptionist di un\'azienda. Gestisci appuntamenti e smista chiamate. Sii cordiale e concisa.'},
+  support:   {label:'&#128296; SUPPORTO',   prompt:'Sei un agente di supporto tecnico. Aiuta i clienti a risolvere problemi in modo chiaro.'},
+  booking:   {label:'&#128197; PRENOTAZIONI',prompt:'Gestisci prenotazioni. Raccogli data, orario, numero persone e nome.'},
+  info:      {label:'&#8505; INFO',          prompt:'Fornisci informazioni su prodotti e servizi. Sii entusiasta e informativo.'}
+};
+var SYS = 'Sei un assistente vocale professionale per telefonate aziendali. Rispondi SEMPRE in italiano, conciso (2-3 frasi max), come se stessi parlando al telefono.';
+var state='idle', msgs=[], scenario='reception', muted=false, listening=false, loading=false;
+var timerSec=0, timerInt=null, rec=null, currentSessionId=null;
+
+var wc = document.getElementById('waveContainer');
+for (var i=0;i<26;i++) {
+  var b=document.createElement('div'); b.className='wave-bar';
+  b.style.setProperty('--spd',(0.4+(i%5)*0.08)+'s');
+  b.style.setProperty('--h',(10+Math.random()*24)+'px');
+  b.style.animationDelay=(i*0.035)+'s';
+  wc.appendChild(b);
+}
+
+function setWave(on,type) {
+  document.querySelectorAll('.wave-bar').forEach(function(b) {
+    b.classList.toggle('active',on);
+    b.classList.toggle('listening',type==='user'&&on);
+    if(on) b.style.setProperty('--h',(8+Math.random()*26)+'px');
+  });
+}
+
+function setScenario(btn) {
+  scenario=btn.dataset.s;
+  document.querySelectorAll('.scenario-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('callerScenario').innerHTML=SCENARIOS[scenario].label;
+}
+document.getElementById('callerScenario').innerHTML=SCENARIOS[scenario].label;
+
+function startTimer() {
+  timerSec=0;
+  var el=document.getElementById('timer'); el.style.display='block';
+  timerInt=setInterval(function(){
+    timerSec++;
+    el.textContent=String(Math.floor(timerSec/60)).padStart(2,'0')+':'+String(timerSec%60).padStart(2,'0');
+  },1000);
+}
+function stopTimer(){clearInterval(timerInt);document.getElementById('timer').style.display='none';}
+function setStatus(s,t){document.getElementById('statusDot').className='dot '+s;document.getElementById('statusText').textContent=t;}
+
+function showError(m) {
+  var el=document.getElementById('errorBox'); el.textContent='\u26A0 '+m; el.classList.add('visible');
+  setTimeout(function(){el.classList.remove('visible');},5000);
+}
+
+function speak(text) {
+  if(muted)return;
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text); u.lang='it-IT'; u.rate=1.0;
+  var v=window.speechSynthesis.getVoices().find(function(v){return v.lang.startsWith('it');});
+  if(v)u.voice=v;
+  u.onstart=function(){setWave(true,'agent');};
+  u.onend=function(){setWave(false);};
+  u.onerror=function(){setWave(false);};
+  window.speechSynthesis.speak(u);
+}
+
+function callAI(userMsg) {
+  loading=true; renderMessages();
+  var history=msgs.map(function(m){return {role:m.role,content:m.content};});
+  history.push({role:'user',content:userMsg});
+  fetch('/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({system:SYS+'\n\n'+SCENARIOS[scenario].prompt,messages:history,sessionId:currentSessionId,phone:phone})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    var reply=data.reply||'Mi dispiace, puo ripetere?';
+    msgs.push({role:'user',content:userMsg},{role:'assistant',content:reply});
+    loading=false; renderMessages(); speak(reply);
+  })
+  .catch(function(){loading=false;renderMessages();showError('Errore di connessione.');});
+}
+
+function renderMessages() {
+  var el=document.getElementById('messages'); el.innerHTML='';
+  msgs.forEach(function(m){
+    var row=document.createElement('div'); row.className='msg '+m.role;
+    var b=document.createElement('div'); b.className='bubble';
+    var l=document.createElement('div'); l.className='bubble-label';
+    l.textContent=m.role==='user'?'\u25B2 TU':'\u25BC AGENTE AI';
+    b.appendChild(l); b.appendChild(document.createTextNode(m.content));
+    row.appendChild(b); el.appendChild(row);
+  });
+  if(loading){
+    var row=document.createElement('div'); row.className='msg assistant';
+    var b=document.createElement('div'); b.className='bubble';
+    var l=document.createElement('div'); l.className='bubble-label'; l.textContent='\u25BC AGENTE AI';
+    var d=document.createElement('div'); d.className='typing-dots';
+    d.innerHTML='<span></span><span></span><span></span>';
+    b.appendChild(l); b.appendChild(d); row.appendChild(b); el.appendChild(row);
+  }
+  el.scrollTop=el.scrollHeight;
+}
+
+function renderControls() {
+  var c=document.getElementById('controls'),tr=document.getElementById('textInputRow'),sb=document.getElementById('scenarioBar'),av=document.getElementById('avatar');
+  c.innerHTML=''; tr.classList.remove('visible');
+  if(state==='idle'){
+    sb.style.display='flex'; av.innerHTML='&#128222;'; av.className='avatar';
+    document.getElementById('callerName').textContent='Avvia una chiamata';
+    var b=document.createElement('button'); b.className='btn btn-call'; b.innerHTML='&#128222;'; b.onclick=startCall; c.appendChild(b);
+  }
+  if(state==='ringing'){
+    sb.style.display='none'; av.innerHTML='&#128242;'; av.className='avatar ringing';
+    document.getElementById('callerName').textContent='Chiamata in arrivo...';
+    var a=document.createElement('button'); a.className='btn btn-accept'; a.innerHTML='&#9989;'; a.onclick=acceptCall;
+    var d=document.createElement('button'); d.className='btn btn-decline'; d.innerHTML='&#10060;'; d.onclick=endCall;
+    c.appendChild(a); c.appendChild(d);
+  }
+  if(state==='active'){
+    sb.style.display='none'; av.innerHTML='&#127897;'; av.className='avatar active';
+    document.getElementById('callerName').textContent='Chiamata attiva';
+    var m=document.createElement('button'); m.className='btn btn-mic'+(listening?' listening':''); m.innerHTML=listening?'&#128308;':'&#127897;'; m.onclick=toggleListen;
+    var e=document.createElement('button'); e.className='btn btn-end'; e.innerHTML='&#128245;'; e.onclick=endCall;
+    var mu=document.createElement('button'); mu.className='btn btn-mute'+(muted?' muted':''); mu.innerHTML=muted?'&#128263;':'&#128266;';
+    mu.onclick=function(){muted=!muted;renderControls();};
+    c.appendChild(m); c.appendChild(e); c.appendChild(mu);
+    tr.classList.add('visible');
+  }
+  if(state==='ended'){
+    sb.style.display='flex'; av.innerHTML='&#128244;'; av.className='avatar';
+    document.getElementById('callerName').textContent='Chiamata terminata';
+    var dv=document.createElement('div'); dv.className='ended-msg'; dv.textContent='\u2713 CHIAMATA TERMINATA';
+    c.appendChild(dv);
+    setTimeout(function(){state='idle';msgs=[];renderMessages();renderControls();},3000);
+  }
+}
+
+function startCall(){state='ringing';setStatus('ringing','CHIAMATA IN ARRIVO...');renderControls();}
+
+function acceptCall(){
+  state='active'; msgs=[]; renderControls(); renderMessages(); setStatus('active','CHIAMATA ATTIVA'); startTimer();
+  fetch('/api/session/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scenario:scenario,phone:phone})})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    currentSessionId=data.id;
+    var g='Buongiorno, grazie per aver chiamato. Come posso aiutarla?';
+    msgs.push({role:'assistant',content:g}); renderMessages(); speak(g);
+    fetch('/api/session/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:currentSessionId,role:'assistant',content:g})});
+  });
+}
+
+function endCall(){
+  window.speechSynthesis.cancel();
+  if(rec){try{rec.stop();}catch(e){}}
+  listening=false; setWave(false); stopTimer();
+  if(currentSessionId){
+    fetch('/api/session/end',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:currentSessionId,duration:timerSec})});
+    currentSessionId=null;
+  }
+  state='ended'; setStatus('ended','TERMINATA'); renderControls();
+}
+
+function toggleListen(){
+  if(listening){try{rec.stop();}catch(e){}listening=false;setWave(false);renderControls();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showError('Usa Chrome per il riconoscimento vocale.');return;}
+  rec=new SR(); rec.lang='it-IT'; rec.continuous=false; rec.interimResults=true;
+  rec.onstart=function(){listening=true;setWave(true,'user');renderControls();};
+  rec.onresult=function(e){
+    var t=Array.from(e.results).map(function(r){return r[0].transcript;}).join('');
+    var tb=document.getElementById('transcriptBox'); tb.textContent='\uD83C\uDF99 '+t+'...'; tb.classList.add('visible');
+    if(e.results[e.results.length-1].isFinal){tb.classList.remove('visible');listening=false;setWave(false);renderControls();if(t.trim())callAI(t.trim());}
+  };
+  rec.onend=function(){listening=false;setWave(false);document.getElementById('transcriptBox').classList.remove('visible');renderControls();};
+  rec.onerror=function(){listening=false;setWave(false);renderControls();showError('Microfono non disponibile.');};
+  rec.start();
+}
+
+function sendText(){
+  var i=document.getElementById('textInput'),t=i.value.trim();
+  if(!t||loading)return; i.value=''; callAI(t);
+}
+
+window.speechSynthesis.onvoiceschanged=function(){};
+renderControls();
+</script>
+</body>
+</html>
