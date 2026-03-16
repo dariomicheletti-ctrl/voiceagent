@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceAgent AI - Registrazione</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--green:#00ff9d;--green-dim:rgba(0,255,157,0.12);--green-glow:rgba(0,255,157,0.25);--red:#ff3b5c;--bg:#080810;--panel:#0e0e1a;--border:#1c1c2e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#e0e0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,255,157,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,0.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;}
+.scanline{position:fixed;left:0;right:0;height:2px;z-index:0;background:linear-gradient(transparent,rgba(0,255,157,0.06),transparent);animation:scanline 7s linear infinite;pointer-events:none;}
+@keyframes scanline{from{top:-2px;}to{top:100%;}}
+.container{position:relative;z-index:1;width:100%;max-width:420px;}
+.header{text-align:center;margin-bottom:24px;}
+.header-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.35em;color:var(--green);margin-bottom:8px;}
+.header h1{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:#fff;}
+.header h1 span{color:var(--green);}
+.header-sub{font-size:10px;color:#333;margin-top:5px;letter-spacing:0.2em;font-family:'Space Mono',monospace;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 0 60px rgba(0,255,157,0.04),0 24px 48px rgba(0,0,0,0.6);}
+.panel-header{padding:14px 20px;background:#0b0b14;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.panel-icon{font-size:18px;}
+.panel-title{font-family:'Space Mono',monospace;font-size:11px;color:#777;letter-spacing:0.15em;}
+.panel-body{padding:24px 22px;}
+.field{margin-bottom:18px;}
+.field-label{font-family:'Space Mono',monospace;font-size:9px;color:#555;letter-spacing:0.2em;margin-bottom:8px;display:block;}
+.req{color:var(--red);}
+.phone-wrap{display:flex;gap:8px;align-items:center;}
+.prefix{background:#111;border:1px solid #222;border-radius:8px;color:#666;padding:11px 12px;font-family:'Space Mono',monospace;font-size:13px;white-space:nowrap;}
+.phone-input{flex:1;background:#111;border:1px solid #222;border-radius:8px;color:#e0e0f0;padding:11px 14px;font-size:15px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;}
+.phone-input:focus{border-color:rgba(0,255,157,0.4);}
+.phone-input::placeholder{color:#333;}
+.phone-input.error{border-color:var(--red);}
+.consents-box{background:#0a0a14;border:1px solid #1a1a2a;border-radius:10px;padding:16px;margin-bottom:8px;}
+.consents-title{font-family:'Space Mono',monospace;font-size:9px;color:#444;letter-spacing:0.2em;margin-bottom:14px;}
+.consent-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;}
+.consent-item:last-child{margin-bottom:0;}
+.chk-wrap{position:relative;flex-shrink:0;margin-top:2px;}
+.chk-box{width:20px;height:20px;border-radius:5px;border:1px solid #333;background:#111;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;font-size:12px;user-select:none;}
+.chk-box.checked{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+.chk-box.err{border-color:var(--red);}
+.consent-text{font-size:12px;color:#777;line-height:1.5;flex:1;}
+.consent-text strong{color:#aaa;}
+.consent-text a{color:var(--green);text-decoration:none;font-size:11px;}
+.badge-req{font-family:'Space Mono',monospace;font-size:8px;color:var(--red);letter-spacing:0.1em;}
+.badge-opt{font-family:'Space Mono',monospace;font-size:8px;color:#444;letter-spacing:0.1em;}
+.privacy-note{font-size:10px;color:#333;line-height:1.6;margin-bottom:18px;padding:10px 12px;background:#0a0a14;border-left:2px solid #1a1a2e;border-radius:0 6px 6px 0;}
+.privacy-note strong{color:#444;}
+.submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00c870,#00ff9d);border:none;border-radius:10px;color:#000;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.15em;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px var(--green-glow);}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 0 28px var(--green-glow);}
+.submit-btn:disabled{opacity:0.35;cursor:default;transform:none;box-shadow:none;}
+.err-msg{font-family:'Space Mono',monospace;font-size:10px;color:var(--red);margin-top:6px;letter-spacing:0.08em;display:none;}
+.err-msg.show{display:block;}
+.footer{text-align:center;margin-top:16px;font-family:'Space Mono',monospace;font-size:9px;color:#252535;letter-spacing:0.15em;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#0c0c18;}
+.modal-head-title{font-family:'Space Mono',monospace;font-size:10px;color:#888;letter-spacing:0.15em;}
+.modal-x{background:none;border:none;color:#555;font-size:20px;cursor:pointer;line-height:1;}
+.modal-x:hover{color:#fff;}
+.modal-content{padding:20px;overflow-y:auto;flex:1;font-size:12px;color:#888;line-height:1.8;}
+.modal-content h3{font-family:'Space Mono',monospace;font-size:10px;color:var(--green);letter-spacing:0.15em;margin:16px 0 8px;}
+.modal-content h3:first-child{margin-top:0;}
+.modal-content p{margin-bottom:10px;}
+.modal-content ul{padding-left:16px;margin-bottom:10px;}
+.modal-content li{margin-bottom:4px;}
+.modal-foot{padding:12px 16px;border-top:1px solid var(--border);text-align:right;}
+.close-btn{padding:8px 18px;background:var(--green-dim);border:1px solid rgba(0,255,157,0.3);border-radius:6px;color:var(--green);font-family:'Space Mono',monospace;font-size:9px;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="container">
+  <div class="header">
+    <div class="header-tag">&#9672; AGENTE VOCALE AI &#9672;</div>
+    <h1>Voice<span>Agent</span>_AI</h1>
+    <div class="header-sub">POWERED BY GROQ &middot; LLAMA 3</div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-icon">&#128203;</div>
+      <div class="panel-title">REGISTRAZIONE CLIENTE</div>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label class="field-label">NUMERO DI TELEFONO <span class="req">*</span></label>
+        <div class="phone-wrap">
+          <div class="prefix">&#127470;&#127481; +39</div>
+          <input class="phone-input" id="phoneInput" type="tel" placeholder="333 000 0000" maxlength="15" oninput="onPhoneInput()" onkeydown="if(event.key==='Enter')submitForm()">
+        </div>
+        <div class="err-msg" id="phoneError">Inserisci un numero valido (min. 9 cifre)</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">CONSENSO AL TRATTAMENTO DEI DATI <span class="req">*</span></label>
+        <div class="consents-box">
+          <div class="consents-title">INFORMATIVA AI SENSI DEL GDPR (REG. UE 2016/679)</div>
+
+          <div class="consent-item">
+            <div class="chk-wrap">
+              <div class="chk-box" id="chk1" onclick="toggle(1)"></div>
+            </div>
+            <div class="consent-text">
+              <strong>Trattamento dati per l'erogazione del servizio</strong> - Acconsento al trattamento del mio numero di telefono e della conversazione per la gestione della chiamata, ai sensi dell'art. 6 par. 1 lett. b) GDPR.<br>
+              <span class="badge-req">OBBLIGATORIO</span>
+              &nbsp;<a href="#" onclick="openPrivacy();return false;">Leggi l'informativa completa &rarr;</a>
+            </div>
+          </div>
+
+          <div class="consent-item">
+            <div class="chk-wrap">
+              <div class="chk-box" id="chk2" onclick="toggle(2)"></div>
+            </div>
+            <div class="consent-text">
+              <strong>Registrazione e archiviazione della conversazione</strong> - Acconsento alla registrazione e conservazione della trascrizione per finalita di qualita del servizio, ai sensi dell'art. 6 par. 1 lett. c) e f) GDPR.<br>
+              <span class="badge-req">OBBLIGATORIO</span>
+            </div>
+          </div>
+
+          <div class="consent-item">
+            <div class="chk-wrap">
+              <div class="chk-box" id="chk3" onclick="toggle(3)"></div>
+            </div>
+            <div class="consent-text">
+              <strong>Finalita di marketing e comunicazioni commerciali</strong> - Acconsento facoltativamente all'utilizzo dei miei dati per comunicazioni commerciali, ai sensi dell'art. 6 par. 1 lett. a) GDPR. Revocabile in qualsiasi momento.<br>
+              <span class="badge-opt">FACOLTATIVO</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="privacy-note">
+          <strong>Titolare del trattamento:</strong> Il gestore del servizio. Dati conservati per il tempo strettamente necessario. Diritti di accesso, rettifica e cancellazione esercitabili contattando il Titolare.
+        </div>
+        <div class="err-msg" id="consentError">Devi accettare i consensi obbligatori per procedere</div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitForm()" disabled>
+        ACCETTA E INIZIA LA CHIAMATA &rarr;
+      </button>
+    </div>
+  </div>
+  <div class="footer">&#128274; DATI PROTETTI &middot; GDPR COMPLIANT &middot; ART. 13 REG. UE 2016/679</div>
+</div>
+
+<div class="modal-overlay" id="privacyModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-head-title">INFORMATIVA PRIVACY &mdash; ART. 13 GDPR</div>
+      <button class="modal-x" onclick="closePrivacy()">&#215;</button>
+    </div>
+    <div class="modal-content">
+      <h3>1. TITOLARE DEL TRATTAMENTO</h3>
+      <p>Il Titolare del trattamento e il gestore del presente servizio di assistenza vocale AI. Per esercitare i tuoi diritti puoi contattare il Titolare tramite i recapiti indicati sul sito.</p>
+      <h3>2. DATI RACCOLTI</h3>
+      <p>Nell'ambito del presente servizio vengono raccolti:</p>
+      <ul>
+        <li>Numero di telefono fornito volontariamente dall'utente</li>
+        <li>Trascrizione testuale della conversazione con l'agente AI</li>
+        <li>Data e ora della chiamata</li>
+        <li>Scenario/tipologia del servizio richiesto</li>
+      </ul>
+      <h3>3. FINALITA E BASI GIURIDICHE</h3>
+      <p><strong>a) Erogazione del servizio</strong> (art. 6 par. 1 lett. b GDPR): necessario per l'esecuzione del servizio richiesto.</p>
+      <p><strong>b) Archiviazione</strong> (art. 6 par. 1 lett. c e f GDPR): conservazione per qualita del servizio e obblighi normativi.</p>
+      <p><strong>c) Marketing</strong> (art. 6 par. 1 lett. a GDPR): solo previo consenso esplicito e revocabile.</p>
+      <h3>4. PERIODO DI CONSERVAZIONE</h3>
+      <p>I dati saranno conservati per il tempo strettamente necessario alle finalita per cui sono stati raccolti, e comunque non oltre i termini previsti dalla normativa applicabile.</p>
+      <h3>5. DIRITTI DELL'INTERESSATO</h3>
+      <p>Ai sensi degli artt. 15-22 GDPR, hai diritto di accesso, rettifica, cancellazione, limitazione, portabilita e opposizione al trattamento, nonche di revocare il consenso in qualsiasi momento.</p>
+      <h3>6. TRASFERIMENTO EXTRA-UE</h3>
+      <p>Il servizio AI potrebbe comportare trasferimenti verso paesi terzi nel rispetto delle garanzie previste agli artt. 44-49 GDPR.</p>
+      <h3>7. RECLAMI</h3>
+      <p>Hai il diritto di proporre reclamo al Garante Privacy: <strong>www.garanteprivacy.it</strong></p>
+    </div>
+    <div class="modal-foot">
+      <button class="close-btn" onclick="closePrivacy()">HO LETTO L'INFORMATIVA</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var checks = {1: false, 2: false, 3: false};
+
+function toggle(n) {
+  checks[n] = !checks[n];
+  var el = document.getElementById('chk' + n);
+  el.classList.toggle('checked', checks[n]);
+  el.innerHTML = checks[n] ? '&#10003;' : '';
+  el.classList.remove('err');
+  document.getElementById('consentError').classList.remove('show');
+  validate();
+}
+
+function getPhone() {
+  return document.getElementById('phoneInput').value.replace(/\D/g, '');
+}
+
+function onPhoneInput() {
+  document.getElementById('phoneInput').classList.remove('error');
+  document.getElementById('phoneError').classList.remove('show');
+  validate();
+}
+
+function validate() {
+  var phone = getPhone();
+  document.getElementById('submitBtn').disabled = !(checks[1] && checks[2] && phone.length >= 9);
+}
+
+function openPrivacy() { document.getElementById('privacyModal').classList.add('open'); }
+function closePrivacy() { document.getElementById('privacyModal').classList.remove('open'); }
+
+function submitForm() {
+  var phone = getPhone();
+  var ok = true;
+  if (phone.length < 9) {
+    document.getElementById('phoneInput').classList.add('error');
+    document.getElementById('phoneError').classList.add('show');
+    ok = false;
+  }
+  if (!checks[1] || !checks[2]) {
+    document.getElementById('consentError').classList.add('show');
+    if (!checks[1]) document.getElementById('chk1').classList.add('err');
+    if (!checks[2]) document.getElementById('chk2').classList.add('err');
+    ok = false;
+  }
+  if (!ok) return;
+
+  var btn = document.getElementById('submitBtn');
+  btn.textContent = 'REGISTRAZIONE IN CORSO...';
+  btn.disabled = true;
+
+  fetch('/api/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      phone: '+39' + phone,
+      consent1: true,
+      consent2: true,
+      consent3: checks[3],
+      timestamp: new Date().toISOString()
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      sessionStorage.setItem('va_phone', '+39' + phone);
+      sessionStorage.setItem('va_registered', '1');
+      window.location.href = '/agent';
+    } else {
+      btn.textContent = 'ACCETTA E INIZIA LA CHIAMATA \u2192';
+      btn.disabled = false;
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'ACCETTA E INIZIA LA CHIAMATA \u2192';
+    btn.disabled = false;
+  });
+}
+</script>
+</body>
+</html>
