@@ -148,7 +148,11 @@ app.post("/api/chat", async (req, res) => {
 
 // ── PAGINE HTML ──────────────────────────────────────────
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "register.html")));
-app.get("/agent", (req, res) => res.sendFile(path.join(__dirname, "public", "agent.html")));
+app.get("/agent", (req, res) => {
+  const filePath = path.join(__dirname, "public", "agent.html");
+  console.log("Serving agent from:", filePath);
+  res.sendFile(filePath);
+});
 app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "login.html")));
 app.get("/admin/dashboard", (req, res) => {
   const token = getToken(req);
