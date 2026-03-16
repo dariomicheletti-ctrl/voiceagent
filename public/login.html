@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accesso Operatore</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--green:#00ff9d;--green-dim:rgba(0,255,157,0.12);--green-glow:rgba(0,255,157,0.25);--red:#ff3b5c;--bg:#07070f;--panel:#0d0d1a;--border:#1a1a2e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:#e0e0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,157,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+.scanline{position:fixed;left:0;right:0;height:2px;background:linear-gradient(transparent,rgba(0,255,157,0.05),transparent);animation:scan 8s linear infinite;pointer-events:none;}
+@keyframes scan{from{top:-2px;}to{top:100%;}}
+.box{position:relative;z-index:1;width:100%;max-width:340px;padding:20px;}
+.icon{text-align:center;font-size:42px;margin-bottom:20px;}
+.title{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.3em;color:var(--green);text-align:center;margin-bottom:6px;}
+.subtitle{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:#fff;text-align:center;margin-bottom:4px;}
+.subtitle span{color:var(--green);}
+.desc{font-size:11px;color:#333;text-align:center;letter-spacing:0.15em;font-family:'Space Mono',monospace;margin-bottom:32px;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px 24px;box-shadow:0 0 40px rgba(0,255,157,0.03),0 20px 40px rgba(0,0,0,0.5);}
+.field-label{font-family:'Space Mono',monospace;font-size:9px;color:#555;letter-spacing:0.2em;margin-bottom:12px;text-align:center;}
+.dots{display:flex;justify-content:center;gap:8px;margin-bottom:10px;}
+.dot-ind{width:8px;height:8px;border-radius:50%;background:#222;transition:background 0.2s;}
+.dot-ind.filled{background:var(--green);}
+.code-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:10px;}
+.digit{width:44px;height:56px;background:#111;border:1px solid #222;border-radius:10px;color:#fff;font-family:'Space Mono',monospace;font-size:24px;font-weight:700;text-align:center;outline:none;transition:border-color 0.2s,box-shadow 0.2s;caret-color:transparent;}
+.digit:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,255,157,0.1);}
+.digit.filled{color:var(--green);}
+.digit.shake{animation:shake 0.35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+.err{text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--red);min-height:18px;margin-bottom:12px;letter-spacing:0.1em;}
+.submit-btn{width:100%;padding:13px;background:linear-gradient(135deg,#00c870,#00ff9d);border:none;border-radius:10px;color:#000;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.15em;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px var(--green-glow);}
+.submit-btn:hover{transform:translateY(-1px);}
+.submit-btn:active{transform:translateY(0);}
+.submit-btn:disabled{opacity:0.35;cursor:default;transform:none;box-shadow:none;}
+.back{display:block;text-align:center;margin-top:20px;font-family:'Space Mono',monospace;font-size:9px;color:#333;text-decoration:none;letter-spacing:0.15em;transition:color 0.2s;}
+.back:hover{color:var(--green);}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="box">
+  <div class="icon">&#128274;</div>
+  <div class="title">&#9672; ACCESSO RISERVATO &#9672;</div>
+  <div class="subtitle">Back<span>Office</span></div>
+  <div class="desc">SOLO OPERATORI AUTORIZZATI</div>
+  <div class="card">
+    <div class="field-label">INSERISCI CODICE OPERATORE</div>
+    <div class="dots" id="dots">
+      <div class="dot-ind" id="di0"></div>
+      <div class="dot-ind" id="di1"></div>
+      <div class="dot-ind" id="di2"></div>
+      <div class="dot-ind" id="di3"></div>
+      <div class="dot-ind" id="di4"></div>
+      <div class="dot-ind" id="di5"></div>
+    </div>
+    <div class="code-inputs" id="codeInputs">
+      <input class="digit" id="d0" maxlength="1" type="password" inputmode="numeric" pattern="[0-9]">
+      <input class="digit" id="d1" maxlength="1" type="password" inputmode="numeric" pattern="[0-9]">
+      <input class="digit" id="d2" maxlength="1" type="password" inputmode="numeric" pattern="[0-9]">
+      <input class="digit" id="d3" maxlength="1" type="password" inputmode="numeric" pattern="[0-9]">
+      <input class="digit" id="d4" maxlength="1" type="password" inputmode="numeric" pattern="[0-9]">
+      <input class="digit" id="d5" maxlength="1" type="password" inputmode="numeric" pattern="[0-9]">
+    </div>
+    <div class="err" id="errMsg"></div>
+    <button class="submit-btn" id="submitBtn" onclick="submitCode()" disabled>ACCEDI &#8594;</button>
+  </div>
+  <a class="back" href="/">&#8592; Torna all'agente</a>
+</div>
+
+<script>
+var inputs = [];
+var dotInds = [];
+for (var i=0;i<6;i++) {
+  inputs.push(document.getElementById('d'+i));
+  dotInds.push(document.getElementById('di'+i));
+}
+
+inputs.forEach(function(inp, i) {
+  inp.addEventListener('input', function() {
+    inp.value = inp.value.replace(/[^0-9]/g,'').slice(-1);
+    inp.classList.toggle('filled', !!inp.value);
+    dotInds[i].classList.toggle('filled', !!inp.value);
+    if (inp.value && i < 5) inputs[i+1].focus();
+    updateBtn();
+    if (getCode().length === 6) setTimeout(submitCode, 150);
+  });
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' && !inp.value && i > 0) {
+      inputs[i-1].focus();
+      inputs[i-1].value = '';
+      inputs[i-1].classList.remove('filled');
+      dotInds[i-1].classList.remove('filled');
+      updateBtn();
+    }
+  });
+  inp.addEventListener('paste', function(e) {
+    e.preventDefault();
+    var p = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+    for (var j=0;j<p.length;j++) {
+      if (inputs[i+j]) {
+        inputs[i+j].value = p[j];
+        inputs[i+j].classList.add('filled');
+        if (dotInds[i+j]) dotInds[i+j].classList.add('filled');
+      }
+    }
+    var next = Math.min(i+p.length, 5);
+    inputs[next].focus();
+    updateBtn();
+    if (getCode().length === 6) setTimeout(submitCode, 150);
+  });
+});
+
+function getCode() { return inputs.map(function(i){return i.value;}).join(''); }
+function updateBtn() { document.getElementById('submitBtn').disabled = getCode().length < 6; }
+
+function submitCode() {
+  var code = getCode();
+  if (code.length < 6) return;
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('errMsg').textContent = '';
+
+  fetch('/api/admin/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({code: code})
+  })
+  .then(function(r){return r.json();})
+  .then(function(data) {
+    if (data.ok) {
+      inputs.forEach(function(i){i.style.borderColor='var(--green)';});
+      setTimeout(function(){window.location.href='/admin/dashboard';}, 400);
+    } else {
+      document.getElementById('errMsg').textContent = 'CODICE ERRATO';
+      inputs.forEach(function(i){i.classList.add('shake');i.value='';i.classList.remove('filled');});
+      dotInds.forEach(function(d){d.classList.remove('filled');});
+      setTimeout(function(){inputs.forEach(function(i){i.classList.remove('shake');});inputs[0].focus();}, 400);
+      document.getElementById('submitBtn').disabled = true;
+      setTimeout(function(){document.getElementById('errMsg').textContent='';}, 3000);
+    }
+  })
+  .catch(function() {
+    document.getElementById('errMsg').textContent = 'Errore di connessione';
+    document.getElementById('submitBtn').disabled = false;
+  });
+}
+
+inputs[0].focus();
+</script>
+</body>
+</html>
